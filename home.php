@@ -87,7 +87,7 @@
                             <?php endwhile; ?>
                         </div>
                         <div class="text-center py-1">
-                            <a href="./?p=products" class="btn btn-lg btn-deafault text-light bg-gradient-maroon col-lg-4 col-md-6 col-sm-12 col-xs-12 rounded-pill">Explore More Product</a>
+                            <a href="./?p=products" class="btn btn-lg btn-deafault text-light bg-gradient-maroon col-lg-4 col-md-6 col-sm-12 col-xs-12 rounded-pill">Explore More Productssss</a>
                         </div>
                     </div>
                 </div>
