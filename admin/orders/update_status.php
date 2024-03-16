@@ -15,14 +15,17 @@ if (isset($_GET['id']) && $_GET['id'] > 0) {
         <div class="form-group">
             <label for="status" class="control-label">Status</label>
             <select class="form-control form-control-sm rounded-0" name="status" id="status" required="required">
-                <option value="1" <?= isset($status) && $status == 1 ? 'selected' : '' ?>>Waiting for payment</option>
-                <option value="2" <?= isset($status) && $status == 2 ? 'selected' : '' ?>>Payment pending</option>
-                <option value="3" <?= isset($status) && $status == 3 ? 'selected' : '' ?>>Payment failed</option>
+                <?php if ($payment_type == 2) {
+                ?>
+                    <option value="1" <?= isset($status) && $status == 1 ? 'selected' : '' ?>>Waiting for payment</option>
+                    <option value="2" <?= isset($status) && $status == 2 ? 'selected' : '' ?>>Payment pending</option>
+                    <option value="3" <?= isset($status) && $status == 3 ? 'selected' : '' ?>>Payment failed</option>
+                <?php } ?>
                 <option value="4" <?= isset($status) && $status == 4 ? 'selected' : '' ?>>Pending</option>
-                <option value="5" <?= isset($status) && $status == 4 ? 'selected' : '' ?>>On process</option>
-                <option value="6" <?= isset($status) && $status == 4 ? 'selected' : '' ?>>Ready to deliver</option>
-                <option value="7" <?= isset($status) && $status == 4 ? 'selected' : '' ?>>Out for Delivery</option>
-                <option value="8" <?= isset($status) && $status == 4 ? 'selected' : '' ?>>Completed</option>
+                <option value="5" <?= isset($status) && $status == 5 ? 'selected' : '' ?>>On process</option>
+                <option value="6" <?= isset($status) && $status == 6 ? 'selected' : '' ?>>Ready to deliver</option>
+                <option value="7" <?= isset($status) && $status == 7 ? 'selected' : '' ?>>Out for Delivery</option>
+                <option value="8" <?= isset($status) && $status == 8 ? 'selected' : '' ?>>Completed</option>
             </select>
         </div>
     </form>

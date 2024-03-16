@@ -88,7 +88,7 @@ if (isset($_GET['id']) && $_GET['id'] > 0) {
         <div class="card rounded-0">
             <div class="card-header py-1">
                 <div class="card-tools">
-                    <?php if (isset($status) && $status < 4) : ?>
+                    <?php if (isset($status) && $status < 8) : ?>
                         <button class="btn btn-info btn-sm bg-gradient-info rounded-0" type="button" id="update_status">Update Status</button>
                     <?php endif; ?>
                     <button class="btn btn-navy btn-sm bg-gradient-navy rounded-0" type="button" id="print"><i class="fa fa-print"></i> Print</button>
@@ -106,22 +106,14 @@ if (isset($_GET['id']) && $_GET['id'] > 0) {
                         <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                             <div class="mb-3">
                                 <label for="" class="control-label">Order Reference Code:</label>
-                                <div class="pl-4"><?= isset($code) ? $code : '' ?></div>
+                                <div class=""><?= isset($code) ? $code : '' ?></div>
                             </div>
-                            <div class="mb-3">
-                                <label for="" class="control-label">Delivery Address:</label>
-                                <div class="pl-4">
-                                    <?= isset($delivery_address) ? str_replace(["\r\n", "\r", "\n"], "<br>", $delivery_address) : '' ?>
-                                    <?= isset($province) ? $province . ", "  : '' ?>
-                                    <?= isset($municipality) ? $municipality . ", "  : '' ?>
-                                    <?= isset($barangay) ? $barangay   : '' ?>
-                                </div>
-                            </div>
+
                         </div>
                         <div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
                             <div class="mb-3">
                                 <label for="" class="control-label">Status:</label>
-                                <div class="pl-4">
+                                <div class="">
                                     <?php
                                     $status = isset($status) ? $status : '';
                                     switch ($status) {
@@ -130,9 +122,9 @@ if (isset($_GET['id']) && $_GET['id'] > 0) {
                                             break;
                                         case 2:
                                             echo '<div class="d-flex  justify-content-between">
-                                            <span class="badge badge-secondary bg-gradient-secondary px-3 rounded-pill d-flex align-items-center justify-content-center">Payment pending - (Under seller validation)</span>
-                                            <a role="button" data-toggle="modal" data-target="#viewPaymentModal" class="color-primary" >View Payment Reference</a>
-                                            </div>  ';
+                                            <span class=" w-100 badge badge-secondary bg-gradient-secondary px-3 rounded-pill d-flex align-items-center justify-content-center">Payment pending - (Please Validate)</span>
+                                            </div>
+                                            ';
                                             break;
                                         case 3:
                                             echo '<span class="badge badge-secondary bg-gradient-warning px-3 rounded-pill">Payment failed</span>';
@@ -154,6 +146,21 @@ if (isset($_GET['id']) && $_GET['id'] > 0) {
                                             break;
                                     }
                                     ?>
+                                    <?php if ($payment_type == 2 && $status > 1) {
+                                        echo '<div class="mt-1 w-100 d-flex justify-content-end">  <a role="button" data-toggle="modal" data-target="#viewPaymentModal" class="color-primary" style="font-size:12px;">View Payment Reference</a></div>';
+                                    } ?>
+
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="mb-3">
+                                <label for="" class="control-label">Delivery Address:</label>
+                                <div class=""><?= isset($delivery_address) ? str_replace(["\r\n", "\r", "\n"], "<br>", $delivery_address) : '' ?>
+                                    <?= isset($barangay) ? $barangay . ", "   : '' ?>
+
+                                    <?= isset($municipality) ? $municipality . ", "  : '' ?>
+                                    <?= isset($province) ? $province  : '' ?>
                                 </div>
                             </div>
                         </div>
@@ -267,13 +274,12 @@ if (isset($_GET['id']) && $_GET['id'] > 0) {
                     }
                     ?>
                 </div>
-                <p style="margin: 0;" class="mt-2">Note: Upon accepting payment the order status will now go to Processing.</p>
             </div>
-
+            <!--
             <div class="modal-footer">
                 <button type="button" class="btn btn-success" id="accept_payment">Accept Payment</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Decline Payment</button>
-            </div>
+            </div> -->
         </div>
     </div>
 </div>
@@ -427,7 +433,7 @@ if (isset($_GET['id']) && $_GET['id'] > 0) {
                 <div class="content">
 <pre>${element.text}</pre>
                 </div>
-                <span>December 9 2001</span>
+                <span>${moment(new Date(element.date_created)).format('MMM D, YYYY | h:mm:ss a')}</span>
             </div>
                 `);
                 }

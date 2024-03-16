@@ -60,6 +60,9 @@ if (isset($_GET['id']) && $_GET['id'] > 0) {
                             break;
                     }
                     ?>
+                    <?php if ($payment_type == 2 && $status > 1) {
+                        echo '<div class="mt-1 w-100 d-flex justify-content-end">  <a role="button" data-toggle="modal" data-target="#viewPaymentModal" class="color-primary" style="font-size:12px;text-decoration:none">View Payment Reference</a></div>';
+                    } ?>
                 </div>
             </div>
         </div>
@@ -67,9 +70,10 @@ if (isset($_GET['id']) && $_GET['id'] > 0) {
             <div class="mb-3">
                 <label for="" class="control-label">Delivery Address:</label>
                 <div class=""><?= isset($delivery_address) ? str_replace(["\r\n", "\r", "\n"], "<br>", $delivery_address) : '' ?>
-                    <?= isset($province) ? $province . ", "  : '' ?>
+                    <?= isset($barangay) ? $barangay . ", "   : '' ?>
+
                     <?= isset($municipality) ? $municipality . ", "  : '' ?>
-                    <?= isset($barangay) ? $barangay   : '' ?>
+                    <?= isset($province) ? $province  : '' ?>
                 </div>
             </div>
         </div>
@@ -102,6 +106,34 @@ if (isset($_GET['id']) && $_GET['id'] > 0) {
         <?php endwhile; ?>
     </div>
 
+</div>
+<div class="modal fade" id="viewPaymentModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">View GCash Payment Reference</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <?php
+                    $images = $conn->query("SELECT * from `order_payment_image` where order_id = '{$_GET['id']}' ");
+                    if ($images->num_rows > 0) {
+                        while ($row  = $images->fetch_assoc()) {
+                    ?>
+                            <div class="col-lg-6">
+                                <img src="<?= base_url ?>uploads/reference/<?= $row['url'] ?>" class="img-fluid" />
+                            </div>
+                    <?php
+                        }
+                    }
+                    ?>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="d-flex justify-content-between align-items-center">
