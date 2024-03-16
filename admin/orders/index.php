@@ -3,7 +3,7 @@
 	alert_toast("<?php echo $_settings->flashdata('success') ?>",'success')
 </script>
 <?php endif;?>
-<?php 
+<?php
 $status = isset($_GET['status']) ? $_GET['status'] : '';
 $stat_arr = ['Pending Orders', 'Packed Orders', 'Our for Delivery', 'Completed Order']
 ?>
@@ -35,7 +35,7 @@ $stat_arr = ['Pending Orders', 'Packed Orders', 'Our for Delivery', 'Completed O
 					</tr>
 				</thead>
 				<tbody>
-					<?php 
+					<?php
 					$i = 1;
 					$where = "";
 					switch($status){
@@ -62,18 +62,30 @@ $stat_arr = ['Pending Orders', 'Packed Orders', 'Our for Delivery', 'Completed O
 							<td class="p-1 align-middle"><?= $row['customer'] ?></td>
 							<td class="p-1 align-middle text-right"><?= format_num($row['total_amount'],2) ?></td>
 							<td class="p-1 align-middle text-center">
-								<?php 
+								<?php
 								switch($row['status']){
-									case 0:
-										echo '<span class="badge badge-secondary bg-gradient-secondary px-3 rounded-pill">Pending</span>';
-										break;
 									case 1:
-										echo '<span class="badge badge-primary bg-gradient-primary px-3 rounded-pill">Process</span>';
+										echo '<span class="badge badge-secondary bg-gradient-secondary px-3 rounded-pill">Waiting for payment</span>';
 										break;
 									case 2:
-										echo '<span class="badge badge-warning bg-gradient-warning px-3 rounded-pill">Out for Delivery</span>';
+										echo '<span class="badge badge-secondary bg-gradient-secondary px-3 rounded-pill">Payment pending</span>';
 										break;
 									case 3:
+										echo '<span class="badge badge-secondary bg-gradient-warning px-3 rounded-pill">Payment failed</span>';
+										break;
+									case 4:
+										echo '<span class="badge badge-secondary bg-gradient-secondary px-3 rounded-pill">Pending</span>';
+										break;
+									case 5:
+										echo '<span class="badge badge-secondary bg-gradient-primary px-3 rounded-pill">On process</span>';
+										break;
+									case 6:
+										echo '<span class="badge badge-primary bg-gradient-primary px-3 rounded-pill">Ready to deliver</span>';
+										break;
+									case 7:
+										echo '<span class="badge badge-warning bg-gradient-warning px-3 rounded-pill">Out for Delivery</span>';
+										break;
+									case 8:
 										echo '<span class="badge badge-teal bg-gradient-teal px-3 rounded-pill">Completed</span>';
 										break;
 								}
@@ -102,5 +114,5 @@ $stat_arr = ['Pending Orders', 'Packed Orders', 'Our for Delivery', 'Completed O
 		});
 		$('.dataTable td,.dataTable th').addClass('py-1 px-2 align-middle')
 	})
-	
+
 </script>
