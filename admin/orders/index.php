@@ -1,9 +1,9 @@
-<?php if($_settings->chk_flashdata('success')): ?>
-<script>
-	alert_toast("<?php echo $_settings->flashdata('success') ?>",'success')
-</script>
-<?php endif;?>
-<?php 
+<?php if ($_settings->chk_flashdata('success')) : ?>
+	<script>
+		alert_toast("<?php echo $_settings->flashdata('success') ?>", 'success')
+	</script>
+<?php endif; ?>
+<?php
 $status = isset($_GET['status']) ? $_GET['status'] : '';
 $stat_arr = ['Pending Orders', 'Packed Orders', 'Our for Delivery', 'Completed Order']
 ?>
@@ -12,7 +12,7 @@ $stat_arr = ['Pending Orders', 'Packed Orders', 'Our for Delivery', 'Completed O
 		<h3 class="card-title">List of <?= isset($stat_arr[$status]) ? $stat_arr[$status] : 'All Orders' ?></h3>
 	</div>
 	<div class="card-body">
-        <div class="container-fluid">
+		<div class="container-fluid">
 			<table class="table table-hover table-striped table-bordered" id="list">
 				<colgroup>
 					<col width="5%">
@@ -35,13 +35,10 @@ $stat_arr = ['Pending Orders', 'Packed Orders', 'Our for Delivery', 'Completed O
 					</tr>
 				</thead>
 				<tbody>
-					<?php 
+					<?php
 					$i = 1;
 					$where = "";
-					switch($status){
-						case 0:
-							$where = " where o.`status` = 0 ";
-							break;
+					switch ($status) {
 						case 1:
 							$where = " where o.`status` = 1 ";
 							break;
@@ -51,29 +48,56 @@ $stat_arr = ['Pending Orders', 'Packed Orders', 'Our for Delivery', 'Completed O
 						case 3:
 							$where = " where o.`status` = 3 ";
 							break;
+						case 4:
+							$where = " where o.`status` = 4 ";
+							break;
+						case 5:
+							$where = " where o.`status` = 5 ";
+							break;
+						case 6:
+							$where = " where o.`status` = 6 ";
+							break;
+						case 7:
+							$where = " where o.`status` = 7 ";
+							break;
+						case 8:
+							$where = " where o.`status` = 8 ";
+							break;
 					}
 					$qry = $conn->query("SELECT o.*, CONCAT(c.firstname, ' ', COALESCE(concat(c.middlename, ' '), ''), c.lastname) as customer from `order_list` o inner join customer_list c on o.customer_id = c.id {$where} order by abs(unix_timestamp(o.date_created)) desc ");
-						while($row = $qry->fetch_assoc()):
+					while ($row = $qry->fetch_assoc()) :
 					?>
 						<tr>
 							<td class="p-1 align-middle text-center"><?= $i++ ?></td>
 							<td class="p-1 align-middle"><?= date("Y-m-d H:i", strtotime($row['date_created'])) ?></td>
 							<td class="p-1 align-middle"><?= $row['code'] ?></td>
 							<td class="p-1 align-middle"><?= $row['customer'] ?></td>
-							<td class="p-1 align-middle text-right"><?= format_num($row['total_amount'],2) ?></td>
+							<td class="p-1 align-middle text-right"><?= format_num($row['total_amount'], 2) ?></td>
 							<td class="p-1 align-middle text-center">
-								<?php 
-								switch($row['status']){
-									case 0:
-										echo '<span class="badge badge-secondary bg-gradient-secondary px-3 rounded-pill">Pending</span>';
-										break;
+								<?php
+								switch ($row['status']) {
 									case 1:
-										echo '<span class="badge badge-primary bg-gradient-primary px-3 rounded-pill">Process</span>';
+										echo '<span class="badge badge-secondary bg-gradient-secondary px-3 rounded-pill">Waiting for payment</span>';
 										break;
 									case 2:
-										echo '<span class="badge badge-warning bg-gradient-warning px-3 rounded-pill">Out for Delivery</span>';
+										echo '<span class="badge badge-secondary bg-gradient-secondary px-3 rounded-pill">Payment pending</span>';
 										break;
 									case 3:
+										echo '<span class="badge badge-secondary bg-gradient-warning px-3 rounded-pill">Payment failed</span>';
+										break;
+									case 4:
+										echo '<span class="badge badge-secondary bg-gradient-secondary px-3 rounded-pill">Pending</span>';
+										break;
+									case 5:
+										echo '<span class="badge badge-secondary bg-gradient-primary px-3 rounded-pill">On process</span>';
+										break;
+									case 6:
+										echo '<span class="badge badge-primary bg-gradient-primary px-3 rounded-pill">Ready to deliver</span>';
+										break;
+									case 7:
+										echo '<span class="badge badge-warning bg-gradient-warning px-3 rounded-pill">Out for Delivery</span>';
+										break;
+									case 8:
 										echo '<span class="badge badge-teal bg-gradient-teal px-3 rounded-pill">Completed</span>';
 										break;
 								}
@@ -90,17 +114,17 @@ $stat_arr = ['Pending Orders', 'Packed Orders', 'Our for Delivery', 'Completed O
 	</div>
 </div>
 <script>
-	$(document).ready(function(){
-		$('.delete_data').click(function(){
-			_conf("Are you sure to delete this request permanently?","delete_request",[$(this).attr('data-id')])
+	$(document).ready(function() {
+		$('.delete_data').click(function() {
+			_conf("Are you sure to delete this request permanently?", "delete_request", [$(this).attr('data-id')])
 		})
 		$('.table').dataTable({
-			columnDefs: [
-					{ orderable: false, targets: [6] }
-			],
-			order:[0,'asc']
+			columnDefs: [{
+				orderable: false,
+				targets: [6]
+			}],
+			order: [0, 'asc']
 		});
 		$('.dataTable td,.dataTable th').addClass('py-1 px-2 align-middle')
 	})
-	
 </script>

@@ -7,7 +7,7 @@ function end_loader() {
         $('#preloader').remove();
     })
 }
-// function 
+// function
 window.alert_toast = function($msg = 'TEST', $bg = 'success', $pos = '') {
     var Toast = Swal.mixin({
         toast: true,
@@ -132,6 +132,7 @@ $(document).ready(function() {
             type: 'POST',
             dataType: 'json',
             success: function(resp) {
+                console.log(resp);
                 if (resp.status == 'success') {
                     // alert_toast("Data successfully saved",'success')
                     location.reload()

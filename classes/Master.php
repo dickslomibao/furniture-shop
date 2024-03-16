@@ -1,176 +1,182 @@
 <?php
 require_once('../config.php');
-Class Master extends DBConnection {
+class Master extends DBConnection
+{
 	private $settings;
-	public function __construct(){
+	public function __construct()
+	{
 		global $_settings;
 		$this->settings = $_settings;
 		parent::__construct();
 	}
-	public function __destruct(){
+	public function __destruct()
+	{
 		parent::__destruct();
 	}
-	function capture_err(){
-		if(!$this->conn->error)
+	function capture_err()
+	{
+		if (!$this->conn->error)
 			return false;
-		else{
+		else {
 			$resp['status'] = 'failed';
 			$resp['error'] = $this->conn->error;
 			return json_encode($resp);
 			exit;
 		}
 	}
-	function delete_img(){
+	function delete_img()
+	{
 		extract($_POST);
-		if(is_file($path)){
-			if(unlink($path)){
+		if (is_file($path)) {
+			if (unlink($path)) {
 				$resp['status'] = 'success';
-			}else{
+			} else {
 				$resp['status'] = 'failed';
-				$resp['error'] = 'failed to delete '.$path;
+				$resp['error'] = 'failed to delete ' . $path;
 			}
-		}else{
+		} else {
 			$resp['status'] = 'failed';
-			$resp['error'] = 'Unkown '.$path.' path';
+			$resp['error'] = 'Unkown ' . $path . ' path';
 		}
 		return json_encode($resp);
 	}
-	function save_category(){
+	function save_category()
+	{
 		$_POST['description'] = addslashes(htmlspecialchars($_POST['description']));
 		extract($_POST);
 		$data = "";
-		foreach($_POST as $k =>$v){
-			if(!in_array($k,array('id'))){
-				if(!empty($data)) $data .=",";
+		foreach ($_POST as $k => $v) {
+			if (!in_array($k, array('id'))) {
+				if (!empty($data)) $data .= ",";
 				$v = $this->conn->real_escape_string($v);
 				$data .= " `{$k}`='{$v}' ";
 			}
 		}
-		$check = $this->conn->query("SELECT * FROM `category_list` where `name` = '{$name}' and delete_flag = 0 ".(!empty($id) ? " and id != {$id} " : "")." ")->num_rows;
-		if($this->capture_err())
+		$check = $this->conn->query("SELECT * FROM `category_list` where `name` = '{$name}' and delete_flag = 0 " . (!empty($id) ? " and id != {$id} " : "") . " ")->num_rows;
+		if ($this->capture_err())
 			return $this->capture_err();
-		if($check > 0){
+		if ($check > 0) {
 			$resp['status'] = 'failed';
 			$resp['msg'] = "Category already exists.";
 			return json_encode($resp);
 			exit;
 		}
-		if(empty($id)){
+		if (empty($id)) {
 			$sql = "INSERT INTO `category_list` set {$data} ";
-		}else{
+		} else {
 			$sql = "UPDATE `category_list` set {$data} where id = '{$id}' ";
 		}
-			$save = $this->conn->query($sql);
-		if($save){
+		$save = $this->conn->query($sql);
+		if ($save) {
 			$cid = !empty($id) ? $id : $this->conn->insert_id;
 			$resp['cid'] = $cid;
 			$resp['status'] = 'success';
-			if(empty($id))
+			if (empty($id))
 				$resp['msg'] = "New Category successfully saved.";
 			else
 				$resp['msg'] = " Category successfully updated.";
-		}else{
+		} else {
 			$resp['status'] = 'failed';
-			$resp['err'] = $this->conn->error."[{$sql}]";
+			$resp['err'] = $this->conn->error . "[{$sql}]";
 		}
-		if($resp['status'] == 'success')
-			$this->settings->set_flashdata('success',$resp['msg']);
-			return json_encode($resp);
+		if ($resp['status'] == 'success')
+			$this->settings->set_flashdata('success', $resp['msg']);
+		return json_encode($resp);
 	}
-	function delete_category(){
+	function delete_category()
+	{
 		extract($_POST);
 		$del = $this->conn->query("UPDATE `category_list` set `delete_flag` = 1 where id = '{$id}'");
-		if($del){
+		if ($del) {
 			$resp['status'] = 'success';
-			$this->settings->set_flashdata('success'," Category successfully deleted.");
-		}else{
+			$this->settings->set_flashdata('success', " Category successfully deleted.");
+		} else {
 			$resp['status'] = 'failed';
 			$resp['error'] = $this->conn->error;
 		}
 		return json_encode($resp);
-
 	}
-	function save_product(){
-		if(isset($_POST['descrption']))
-		$_POST['descrption'] = addslashes(htmlspecialchars($_POST['descrption']));
+	function save_product()
+	{
+		if (isset($_POST['descrption']))
+			$_POST['descrption'] = addslashes(htmlspecialchars($_POST['descrption']));
 
 		extract($_POST);
 		$data = "";
-		foreach($_POST as $k =>$v){
-			if(!in_array($k,array('id'))){
-				if(!empty($data)) $data .=",";
+		foreach ($_POST as $k => $v) {
+			if (!in_array($k, array('id'))) {
+				if (!empty($data)) $data .= ",";
 				$v = $this->conn->real_escape_string($v);
 				$data .= " `{$k}`='{$v}' ";
 			}
 		}
-		$check = $this->conn->query("SELECT * FROM `product_list` where `brand` = '{$brand}' and `name` = '{$name}' and delete_flag = 0 ".(!empty($id) ? " and id != {$id} " : "")." ")->num_rows;
-		if($this->capture_err())
+		$check = $this->conn->query("SELECT * FROM `product_list` where `brand` = '{$brand}' and `name` = '{$name}' and delete_flag = 0 " . (!empty($id) ? " and id != {$id} " : "") . " ")->num_rows;
+		if ($this->capture_err())
 			return $this->capture_err();
-		if($check > 0){
+		if ($check > 0) {
 			$resp['status'] = 'failed';
 			$resp['msg'] = "Product already exists.";
 			return json_encode($resp);
 			exit;
 		}
-		if(empty($id)){
+		if (empty($id)) {
 			$sql = "INSERT INTO `product_list` set {$data} ";
-		}else{
+		} else {
 			$sql = "UPDATE `product_list` set {$data} where id = '{$id}' ";
 		}
-			$save = $this->conn->query($sql);
-		if($save){
+		$save = $this->conn->query($sql);
+		if ($save) {
 			$pid = !empty($id) ? $id : $this->conn->insert_id;
 			$resp['pid'] = $pid;
 			$resp['status'] = 'success';
-			if(empty($id)){
+			if (empty($id)) {
 				$resp['msg'] = 'Product has been addedd successfully';
-			}else{
+			} else {
 				$resp['msg'] = " Product has been updated successfully.";
 			}
-
-			if(!empty($_FILES['img']['tmp_name'])){
+			if (!empty($_FILES['img']['tmp_name'])) {
 				$img_path = "uploads/medicines/";
-				if(!is_dir(base_app.$img_path)){
-					mkdir(base_app.$img_path);
+				if (!is_dir(base_app . $img_path)) {
+					mkdir(base_app . $img_path);
 				}
-				$accept = array('image/jpeg','image/png');
-				if(!in_array($_FILES['img']['type'],$accept)){
+				$accept = array('image/jpeg', 'image/png');
+				if (!in_array($_FILES['img']['type'], $accept)) {
 					$resp['msg'] += " Image file type is invalid";
-				}else{
-					if($_FILES['img']['type'] == 'image/jpeg')
+				} else {
+					if ($_FILES['img']['type'] == 'image/jpeg')
 						$uploadfile = imagecreatefromjpeg($_FILES['img']['tmp_name']);
-					elseif($_FILES['img']['type'] == 'image/png')
+					elseif ($_FILES['img']['type'] == 'image/png')
 						$uploadfile = imagecreatefrompng($_FILES['img']['tmp_name']);
-					if(!$uploadfile){
+					if (!$uploadfile) {
 						$resp['msg'] +=  " Image is invalid";
-					}else{
-						list($width, $height) =getimagesize($_FILES['img']['tmp_name']);
-						if($width > 640 || $height > 480){
-							if($width > $height){
+					} else {
+						list($width, $height) = getimagesize($_FILES['img']['tmp_name']);
+						if ($width > 640 || $height > 480) {
+							if ($width > $height) {
 								$perc = ($width - 640) / $width;
 								$width = 640;
 								$height = $height - ($height * $perc);
-							}else{
+							} else {
 								$perc = ($height - 480) / $height;
 								$height = 480;
 								$width = $width - ($width * $perc);
 							}
 						}
-						$temp = imagescale($uploadfile,$width,$height);
-						$spath = $img_path.'/'.$_FILES['img']['name'];
+						$temp = imagescale($uploadfile, $width, $height);
+						$spath = $img_path . '/' . $_FILES['img']['name'];
 						$i = 1;
-						while(true){
-							if(is_file(base_app.$spath)){
-								$spath = $img_path.'/'.($i++).'_'.$_FILES['img']['name'];
-							}else{
+						while (true) {
+							if (is_file(base_app . $spath)) {
+								$spath = $img_path . '/' . ($i++) . '_' . $_FILES['img']['name'];
+							} else {
 								break;
 							}
 						}
-						if($_FILES['img']['type'] == 'image/jpeg')
-						$upload = imagejpeg($temp,base_app.$spath,60);
-						elseif($_FILES['img']['type'] == 'image/png')
-						$upload = imagepng($temp,base_app.$spath,6);
-						if($upload){
+						if ($_FILES['img']['type'] == 'image/jpeg')
+							$upload = imagejpeg($temp, base_app . $spath, 60);
+						elseif ($_FILES['img']['type'] == 'image/png')
+							$upload = imagepng($temp, base_app . $spath, 6);
+						if ($upload) {
 							$this->conn->query("UPDATE product_list set image_path = CONCAT('{$spath}', '?v=',unix_timestamp(CURRENT_TIMESTAMP)) where id = '{$pid}' ");
 						}
 
@@ -178,250 +184,321 @@ Class Master extends DBConnection {
 					}
 				}
 			}
-		}else{
+		} else {
 			$resp['status'] = 'failed';
-			$resp['err'] = $this->conn->error."[{$sql}]";
+			$resp['err'] = $this->conn->error . "[{$sql}]";
 		}
-		if($resp['status'] == 'success' && isset($resp['msg']))
-		$this->settings->set_flashdata('success', $resp['msg']);
+		if ($resp['status'] == 'success' && isset($resp['msg']))
+			$this->settings->set_flashdata('success', $resp['msg']);
 		return json_encode($resp);
 	}
-	function delete_product(){
+	function delete_product()
+	{
 		extract($_POST);
 		$del = $this->conn->query("DELETE FROM `product_list` where id = '{$id}'");
-		if($del){
+		if ($del) {
 			$resp['status'] = 'success';
-			$this->settings->set_flashdata('success'," Product successfully deleted.");
-		}else{
+			$this->settings->set_flashdata('success', " Product successfully deleted.");
+		} else {
 			$resp['status'] = 'failed';
 			$resp['error'] = $this->conn->error;
 		}
 		return json_encode($resp);
-
 	}
-	function save_stock(){
+	function save_stock()
+	{
 		extract($_POST);
 		$data = "";
-		foreach($_POST as $k =>$v){
-			if(!in_array($k,array('id'))){
-				if(!empty($data)) $data .=",";
+		foreach ($_POST as $k => $v) {
+			if (!in_array($k, array('id'))) {
+				if (!empty($data)) $data .= ",";
 				$v = $this->conn->real_escape_string($v);
 				$data .= " `{$k}`='{$v}' ";
 			}
 		}
-		$check = $this->conn->query("SELECT * FROM `stock_list` where `code` = '{$code}' ".(!empty($id) ? " and id != {$id} " : "")." ")->num_rows;
-		if($this->capture_err())
+		$check = $this->conn->query("SELECT * FROM `stock_list` where `code` = '{$code}' " . (!empty($id) ? " and id != {$id} " : "") . " ")->num_rows;
+		if ($this->capture_err())
 			return $this->capture_err();
-		if($check > 0){
+		if ($check > 0) {
 			$resp['status'] = 'failed';
 			$resp['msg'] = "Code is already taken.";
 			return json_encode($resp);
 			exit;
 		}
-		if(empty($id)){
+		if (empty($id)) {
 			$sql = "INSERT INTO `stock_list` set {$data} ";
-		}else{
+		} else {
 			$sql = "UPDATE `stock_list` set {$data} where id = '{$id}' ";
 		}
-			$save = $this->conn->query($sql);
-		if($save){
+		$save = $this->conn->query($sql);
+		if ($save) {
 			$cid = !empty($id) ? $id : $this->conn->insert_id;
 			$resp['cid'] = $cid;
 			$resp['status'] = 'success';
-			if(empty($id))
+			if (empty($id))
 				$resp['msg'] = "New Stock successfully saved.";
 			else
 				$resp['msg'] = " Stock successfully updated.";
-		}else{
+		} else {
 			$resp['status'] = 'failed';
-			$resp['err'] = $this->conn->error."[{$sql}]";
+			$resp['err'] = $this->conn->error . "[{$sql}]";
 		}
-		if($resp['status'] == 'success')
-			$this->settings->set_flashdata('success',$resp['msg']);
-			return json_encode($resp);
+		if ($resp['status'] == 'success')
+			$this->settings->set_flashdata('success', $resp['msg']);
+		return json_encode($resp);
 	}
-	function delete_stock(){
+	function delete_stock()
+	{
 		extract($_POST);
 		$del = $this->conn->query("DELETE FROM `stock_list` where id = '{$id}'");
-		if($del){
+		if ($del) {
 			$resp['status'] = 'success';
-			$this->settings->set_flashdata('success'," Stock successfully deleted.");
-		}else{
+			$this->settings->set_flashdata('success', " Stock successfully deleted.");
+		} else {
 			$resp['status'] = 'failed';
 			$resp['error'] = $this->conn->error;
 		}
 		return json_encode($resp);
-
 	}
-	function add_to_card(){
+	function add_to_card()
+	{
 		extract($_POST);
 		$check = $this->conn->query("SELECT id FROM `cart_list` where  customer_id = '{$this->settings->userdata('id')}' and product_id = '{$product_id}'")->num_rows;
-		if($check > 0 ){
+		if ($check > 0) {
 			$resp['status'] = 'failed';
 			$resp['msg'] = "Product already exist in your cart.";
-		}else{
+		} else {
 			$insert = $this->conn->query("INSERT INTO `cart_list` (`customer_id`, `product_id`, `quantity`) VALUES ('{$this->settings->userdata('id')}', '{$product_id}', '1') ");
-			if($insert){
+			if ($insert) {
 				$resp['status'] = 'success';
-			}else{
+			} else {
 				$resp['status'] = 'failed';
 				$resp['error'] = $this->conn->error;
 			}
 		}
 
 
-		if($resp['status'] == 'success'){
+		if ($resp['status'] == 'success') {
 			$this->settings->set_flashdata('success', 'Product has been added to cart.');
 		}
 		return json_encode($resp);
 	}
-	function update_cart(){
+	function update_cart()
+	{
 		extract($_POST);
 		$update = $this->conn->query("UPDATE `cart_list` set quantity = '{$qty}' where id = '{$cart_id}'");
-		if($update){
+		if ($update) {
 			$resp['status'] = 'success';
-		}else{
+		} else {
 			$resp['status'] = 'failed';
 			$resp['error'] = $this->conn->error;
 		}
-		if($resp['status'] == 'success'){
+		if ($resp['status'] == 'success') {
 			$this->settings->set_flashdata('success', 'Cart Item has been updated.');
 		}
 		return json_encode($resp);
 	}
-	function delete_cart(){
+	function delete_cart()
+	{
 		extract($_POST);
 		$delete = $this->conn->query("DELETE FROM `cart_list` where id = '{$id}'");
-		if($delete){
+		if ($delete) {
 			$resp['status'] = 'success';
-		}else{
+		} else {
 			$resp['status'] = 'failed';
 			$resp['error'] = $this->conn->error;
 		}
-		if($resp['status'] == 'success'){
+		if ($resp['status'] == 'success') {
 			$this->settings->set_flashdata('success', 'Cart Item has been deleted.');
 		}
 		return json_encode($resp);
 	}
-	function place_order(){
+	function place_order()
+	{
 		extract($_POST);
 		$_POST['delivery_address'] = addslashes(htmlspecialchars($_POST['delivery_address']));
 		$customer_id = $this->settings->userdata('id');
 		$pref = date("Ymd");
 		$code = sprintf("%'.05d", 1);
-		while(true){
+		$payment_type = $_POST['payment_type'];
+		$barangay = $_POST['barangay'];
+		$municipality = $_POST['municipalities'];
+		$province = $_POST['province'];
+		while (true) {
 			$check = $this->conn->query("SELECT id FROM `order_list` where `code` = '{$pref}{$code}'")->num_rows;
-			if($check > 0){
-				$code = sprintf("%'.05d",abs($code) + 1);
-			}else{
-				$code = $pref.$code;
+			if ($check > 0) {
+				$code = sprintf("%'.05d", abs($code) + 1);
+			} else {
+				$code = $pref . $code;
 				break;
 			}
 		}
-		$insert = $this->conn->query("INSERT INTO `order_list` (`code`, `customer_id`, `delivery_address`, `total_amount`) VALUES ('{$code}', '{$customer_id}', '{$delivery_address}', '{$total_amount}') ");
-		if($insert){
+		$status = $payment_type == 2 ?  1 : 4;
+		$insert = $this->conn->query("INSERT INTO `order_list` (`code`, `customer_id`, `delivery_address`, `total_amount`,`payment_type`,`status`,`province`,`municipality`,`barangay`) VALUES ('{$code}', '{$customer_id}', '{$delivery_address}', '{$total_amount}','{$payment_type}', '{$status}', '{$province}', '{$municipality}', '{$barangay}') ");
+		if ($insert) {
 			$oid = $this->conn->insert_id;
 			$data = "";
-			$cart = $this->conn->query("SELECT c.*, p.name as product, p.brand as brand, p.price, cc.name as category, p.image_path, COALESCE((SELECT SUM(quantity) FROM `stock_list` where product_id = p.id and (expiration IS NULL or date(expiration) > '".date("Y-m-d")."') ), 0) as `available` FROM `cart_list` c inner join product_list p on c.product_id = p.id inner join category_list cc on p.category_id = cc.id where customer_id = '{$customer_id}' ");
-			while($row = $cart->fetch_assoc()):
-				if(!empty($data)) $data .= ", ";
+			$cart = $this->conn->query("SELECT c.*, p.name as product, p.brand as brand, p.price, cc.name as category, p.image_path, COALESCE((SELECT SUM(quantity) FROM `stock_list` where product_id = p.id and (expiration IS NULL or date(expiration) > '" . date("Y-m-d") . "') ), 0) as `available` FROM `cart_list` c inner join product_list p on c.product_id = p.id inner join category_list cc on p.category_id = cc.id where customer_id = '{$customer_id}' ");
+			while ($row = $cart->fetch_assoc()) :
+				if (!empty($data)) $data .= ", ";
 				$data .= "('{$oid}', '{$row['product_id']}', '{$row['quantity']}', '{$row['price']}')";
 			endwhile;
-			if(!empty($data)){
+			if (!empty($data)) {
 				$sql = "INSERT INTO order_items (`order_id`, `product_id`, `quantity`, `price`) VALUES {$data}";
 				$save = $this->conn->query($sql);
-				if($save){
+				if ($save) {
 					$resp['status'] = 'success';
 					$this->conn->query("DELETE FROM `cart_list` where customer_id = '{$customer_id}'");
-				}else{
+				} else {
 					$resp['status'] = 'failed';
 					$resp['error'] = $this->conn->error;
 					$this->conn->query("DELETE FROM `order_list` where id = '{$oid}'");
 				}
-			}else{
+			} else {
 				$resp['status'] = 'success';
 			}
-		}else{
+		} else {
 			$resp['status'] = 'failed';
 			$resp['error'] = $this->conn->error;
 		}
 
-		if($resp['status'] == 'success'){
+		if ($resp['status'] == 'success') {
 			$this->settings->set_flashdata('success', 'Order has been placed successfully.');
 		}
+		$resp['asd'] = $payment_type;
 		return json_encode($resp);
 	}
-	function update_order_status(){
+	function update_order_status()
+	{
 		extract($_POST);
 		$update = $this->conn->query("UPDATE `order_list` set `status` = '{$status}' where id = '{$id}'");
-		if($update){
+		if ($update) {
 			$resp['status'] = 'success';
-		}else{
+		} else {
 			$resp['failed'] = 'failed';
 			$resp['msg'] = $this->conn->error;
 		}
-		if($resp['status'] == 'success')
-		$this->settings->set_flashdata('success', "Order Status has been updated successfully.");
+		if ($resp['status'] == 'success')
+			$this->settings->set_flashdata('success', "Order Status has been updated successfully.");
 
 		return json_encode($resp);
 	}
-	function delete_order(){
+	function delete_order()
+	{
 		extract($_POST);
 		$delete = $this->conn->query("DELETE FROM `order_list` where id = '{$id}'");
-		if($delete){
+		if ($delete) {
 			$resp['status'] = 'success';
-		}else{
+		} else {
 			$resp['status'] = 'failed';
 			$resp['error'] = $this->conn->error;
 		}
-		if($resp['status'] == 'success'){
+		if ($resp['status'] == 'success') {
 			$this->settings->set_flashdata('success', 'Order has been deleted successfully.');
 		}
 		return json_encode($resp);
 	}
-	function save_inquiry(){
+	function save_inquiry()
+	{
 		$_POST['message'] = addslashes(htmlspecialchars($_POST['message']));
 		extract($_POST);
 		$data = "";
-		foreach($_POST as $k =>$v){
-			if(!in_array($k,array('id'))){
-				if(!empty($data)) $data .=",";
+		foreach ($_POST as $k => $v) {
+			if (!in_array($k, array('id'))) {
+				if (!empty($data)) $data .= ",";
 				$v = $this->conn->real_escape_string($v);
 				$data .= " `{$k}`='{$v}' ";
 			}
 		}
-		if(empty($id)){
+		if (empty($id)) {
 			$sql = "INSERT INTO `inquiry_list` set {$data} ";
-		}else{
+		} else {
 			$sql = "UPDATE `inquiry_list` set {$data} where id = '{$id}' ";
 		}
-			$save = $this->conn->query($sql);
-		if($save){
+		$save = $this->conn->query($sql);
+		if ($save) {
 			$cid = !empty($id) ? $id : $this->conn->insert_id;
 			$resp['status'] = 'success';
-			if(empty($id))
-				$this->settings->set_flashdata('success'," Your Inquiry has been sent successfully. Thank you!");
+			if (empty($id))
+				$this->settings->set_flashdata('success', " Your Inquiry has been sent successfully. Thank you!");
 			else
-				$this->settings->set_flashdata('success'," Inquiry successfully updated");
-			
-		}else{
+				$this->settings->set_flashdata('success', " Inquiry successfully updated");
+		} else {
 			$resp['status'] = 'failed';
-			$resp['err'] = $this->conn->error."[{$sql}]";
+			$resp['err'] = $this->conn->error . "[{$sql}]";
 		}
 		return json_encode($resp);
 	}
-	function delete_inquiry(){
+	function delete_inquiry()
+	{
 		extract($_POST);
 		$del = $this->conn->query("DELETE FROM `inquiry_list` where id = '{$id}'");
-		if($del){
+		if ($del) {
 			$resp['status'] = 'success';
-			$this->settings->set_flashdata('success'," Inquiry has been deleted successfully.");
-		}else{
+			$this->settings->set_flashdata('success', " Inquiry has been deleted successfully.");
+		} else {
 			$resp['status'] = 'failed';
 			$resp['error'] = $this->conn->error;
 		}
 		return json_encode($resp);
+	}
 
+
+	function add_gcash_reference()
+	{
+		$resp = [];
+		if (isset($_POST['order_id'])) {
+			$id = $_POST['order_id'];
+			// Check if file was uploaded without errors
+			if (isset($_FILES['image']) && $_FILES['image']['error'] === 0) {
+				$file = $_FILES['image']['tmp_name'];
+				$fileName = $_FILES['image']['name'];
+				$fileType = $_FILES['image']['type'];
+				// Specify the directory where you want to save the uploaded file\\
+				$uId = uniqid('', true);
+				$uploadDir = base_app . 'uploads/reference/' . $uId  . $fileName;
+				$fileName = $uId  . $fileName;
+				// Move the uploaded file to the specified directory
+				if (move_uploaded_file($file, $uploadDir)) {
+					$sql = "INSERT INTO `order_payment_image` (`order_id`, `url`) VALUES ('{$id}','{$fileName}')";
+					$this->conn->query($sql);
+					$sql = "UPDATE `order_list` SET `status`= '2' where id = '{$id}'";
+					$this->conn->query($sql);
+					$resp['status'] = 200;
+				} else {
+					$resp['status'] = 400;
+				}
+			} else {
+				$resp['status'] = 400;
+			}
+		}
+
+		return json_encode($resp);
+	}
+
+	function send_message()
+	{
+		$userId = $_SESSION["userdata"]["id"];
+		$orderId = $_POST['order_id'];
+		$message = $_POST['message'];
+		$this->conn->query("INSERT INTO `chats` (`order_id`, `sender_id`, `text`) VALUES ('$orderId','$userId','$message')");
+	}
+	function get_message()
+	{
+		$orderId = $_POST['order_id'];
+		$chats = [];
+		$images = $this->conn->query("SELECT * from `chats` where order_id = '$orderId' order by date_created");
+		if ($images->num_rows > 0) {
+			while ($row  = $images->fetch_assoc()) {
+				$chats[] = $row;
+			}
+		}
+
+		// Set the appropriate content type header
+		header('Content-Type: application/json');
+
+		// Output the JSON data
+		echo json_encode($chats);
 	}
 }
 
@@ -431,49 +508,58 @@ $sysset = new SystemSettings();
 switch ($action) {
 	case 'delete_img':
 		echo $Master->delete_img();
-	break;
+		break;
 	case 'save_category':
 		echo $Master->save_category();
-	break;
+		break;
 	case 'delete_category':
 		echo $Master->delete_category();
-	break;
+		break;
 	case 'save_product':
 		echo $Master->save_product();
-	break;
+		break;
 	case 'delete_product':
 		echo $Master->delete_product();
-	break;
+		break;
 	case 'save_stock':
 		echo $Master->save_stock();
-	break;
+		break;
 	case 'delete_stock':
 		echo $Master->delete_stock();
-	break;
+		break;
 	case 'add_to_card':
 		echo $Master->add_to_card();
-	break;
+		break;
 	case 'update_cart':
 		echo $Master->update_cart();
-	break;
+		break;
 	case 'delete_cart':
 		echo $Master->delete_cart();
-	break;
+		break;
 	case 'place_order':
 		echo $Master->place_order();
-	break;
+		break;
 	case 'delete_order':
 		echo $Master->delete_order();
-	break;
+		break;
 	case 'update_order_status':
 		echo $Master->update_order_status();
-	break;
+		break;
 	case 'save_inquiry':
 		echo $Master->save_inquiry();
-	break;
+		break;
 	case 'delete_inquiry':
 		echo $Master->delete_inquiry();
-	break;
+		break;
+	case 'add_gcash_reference':
+		echo $Master->add_gcash_reference();
+		break;
+	case 'send_message':
+		echo $Master->send_message();
+		break;
+	case 'get_message':
+		echo $Master->get_message();
+		break;
 	default:
 		// echo $sysset->index();
 		break;
